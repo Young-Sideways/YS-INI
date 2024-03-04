@@ -75,8 +75,6 @@ wchar_t* ini_to_ustr(_IN const ini_value_t value, _IN const wchar_t* defval);
 
 void* ini_to_sruct(INI* file);
 
-ini_error_t ini_error(_IN const INI* ini);
-
 #pragma endregion
 
 #pragma region ---  ---
