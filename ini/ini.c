@@ -21,7 +21,7 @@
 #define DEFAULT(var) DEFAULT_##var
 
 #define DEFAULT_INI_COMMENT '#' // 
-#define DEFAULT_INI_ESCAPE  '\\' // Backsalsh
+#define DEFAULT_INI_ESCAPE  '\\' // Backslash
 
 #define DEFAULT_SECTION_NAME          "root"
 #define DEFAULT_SECTION_OPEN_BRACKET  '['
@@ -29,11 +29,9 @@
 
 #define DEFAULT_PROPERTY_DELIMITER '=' // equals sign (=, ASCII 0x3D)
 
-#define DEFAULT_STRING_QUOTE '\"' // double quotes and apostrophe
+#define _bool_true_alias  "true"
 
-#define _bool_string_alias_true  "true"
-#define _bool_string_alias_false "false"
-
+#define DEFAULT_PARSER_BUFFER_SIZE 2048
 #define DEFAULT_HT_INIT_SIZE 8U
 #define HT_SIZE_GROWTH(size) ((size) << 1) // x2 factor
 
@@ -44,7 +42,6 @@
 struct ini_value {
     ini_value_type type;
     union {
-        bool   _vbool  ;
         int    _vint   ;
         double _vdouble;
         char*  _vstring;
@@ -137,6 +134,80 @@ ini_section_t* _add_section(const char* name, INI* parent) {
     parent->section_count++;
     return parent->sections[parent->section_count - 1];
 }
+
+
+static bool _is_special(char c) {
+    switch (c)
+    {
+    case DEFAULT(INI_COMMENT):
+    case DEFAULT(INI_ESCAPE):
+    case DEFAULT(SECTION_OPEN_BRACKET):
+    case DEFAULT(SECTION_CLOSE_BRACKET):
+    case DEFAULT(PROPERTY_DELIMITER):
+        return true;
+    default:
+        return false;
+    }
+}
+
+void _tokenize(const char* str) {
+    /*
+
+      EOS - end of sring
+      EOB - end of buffer
+
+      static const char section_alphabet[] = "abcdefghijklmnopqrstuvwxyz0123456789_"
+      static const char key_alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
+
+      Валидные строки:
+        1. [section]
+        2. <key> = <value>
+        3. <key> \ = \ <value T> \ <valueT> \ <#comment> \ <comment>
+
+    TODO: - Оптимизация парсинга условными переходами с состоянием текущего контекста поиска токена
+
+    1. Получить первое вхождение спец-символа:
+        case '[' :
+            1. Найти следующий спец-символ:
+                case ']':
+                    - trim
+                    - только латиница верхнего и нижнего регистров, цифры и знаки '_' ? OK : ОШИБКА
+                default: --- ОШИБКА --- - '[', '#', '\\', EOS, EOB
+            2. Найти следующий спец-символ:
+                case '#':
+                    - TODO: парсинг значения
+                    - пропустить коментарий до конца строки или конца буфера
+                case EOS, EOB:
+                    - парсинг значения
+                case '\\'
+                    1. перенос строки
+                        - проверка на пустоту после символа
+                    2. экранирование '[', ']', '#', '\\'
+                default:  --- ОШИБКА --- - '[', '#', '\\', EOB
+        case '=':
+            1. Проверить ключ на валидность:
+                - trim
+                - только латиница верхнего и нижнего регистров, цифры и знаки '_' ? OK : ОШИБКА
+            2. Найти следующий спец-символ:
+                case '[', ']':
+                    - --- ОШИБКА ---
+                case '#' : пропустить 
+                case '\\':
+                    1. перенос строки
+                        - проверка на пустоту после символа ? OK : ОШИБКА
+                    2. экранирование '[', ']', '#', '\\'
+        case '\\':
+            1. перенос строки
+                - проверка на пустоту после символа ? OK : ОШИБКА
+        case ']':
+            --- ОШИБКА ---
+        
+                    
+    
+    
+    
+    */
+}
 #pragma endregion
 
 #pragma region --- HASH ---
@@ -185,8 +256,8 @@ INI* ini_open(_IN const char* path) {
 _PARSE: {
     // generate "root" section
 
-    char buffer[1024];
-    while (fgets(buffer, 1024, ini->file)) {
+    char buffer[DEFAULT(PARSER_BUFFER_SIZE)];
+    while (fgets(buffer, DEFAULT(PARSER_BUFFER_SIZE), ini->file)) {
         _trim(buffer); // clean all buffer whitespaces
 
     _COMPLETE_TOKEN:

@@ -47,10 +47,7 @@ typedef enum {
 
     INI_INT       = 0x1U,
     INI_DOUBLE    = 0x2U,
-    INI_ASCII     = 0x3U,
-    INI_UNICODE   = 0x4U,
-
-    INI_UNDEFINED = -0x1
+    INI_STRING    = 0x3U
 } ini_value_type;
 
 #pragma endregion
