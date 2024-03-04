@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <wchar.h>
 
 #pragma endregion
 
@@ -33,13 +34,6 @@
 #pragma endregion
 
 #pragma region --- TYPEDEFS ---
-
-typedef enum {
-    ini_error_no_error  = 0x0,
-    ini_error_undefined = -0x1
-} ini_error_type;
-
-typedef struct ini_error ini_error_t;
 
 typedef char* ini_key_t;
 typedef struct ini_value ini_value_t;
@@ -63,14 +57,23 @@ typedef enum {
 
 #pragma region --- CONSTRUCTORS / DESTRUCTORS ---
 
-INI* ini_open(_IN const char* file_path);
-void ini_close(_IN _NULLABLE INI* ini);
+INI* ini_open(_IN const char* path);
+void ini_close(_IN INI* ini);
 
 #pragma endregion
 
 #pragma region --- FUNCIONS ---
 
 
+ini_value_t ini_get_value(INI* file, const char* key);
+
+    bool ini_to_bool(_IN const ini_value_t value, _IN const bool     defval);
+     int ini_to_int (_IN const ini_value_t value, _IN const int      defval);
+unsigned ini_to_uint(_IN const ini_value_t value, _IN const unsigned defval);
+   char* ini_to_str (_IN const ini_value_t value, _IN const char*    defval);
+wchar_t* ini_to_ustr(_IN const ini_value_t value, _IN const wchar_t* defval);
+
+void* ini_to_sruct(INI* file);
 
 ini_error_t ini_error(_IN const INI* ini);
 
