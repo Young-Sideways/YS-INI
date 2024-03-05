@@ -129,10 +129,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ini\ini.c" />
+    <ClCompile Include="ini\ini.parser.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ini\ini.h" />
+    <ClInclude Include="ini\ini.parser.h" />
+    <ClInclude Include="ini\ini.utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

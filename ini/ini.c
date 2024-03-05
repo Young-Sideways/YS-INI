@@ -16,6 +16,7 @@
 
 #pragma endregion
 
+
 #pragma region --- MACROS ---
 
 #define DEFAULT(var) DEFAULT_##var
@@ -36,6 +37,7 @@
 #define HT_SIZE_GROWTH(size) ((size) << 1) // x2 factor
 
 #pragma endregion
+
 
 #pragma region --- TYPEDEFS ---
 
@@ -78,26 +80,9 @@ typedef size_t hash_t;
 
 #pragma endregion
 
+
 #pragma region --- UTILS ---
 
-void _trim(char* str) {
-    if (!str)
-        return NULL;
-    size_t size = strlen(str) - 1;
-    char* begin = str;
-    char* end = str + size;
-
-    while (isspace(begin) && begin <= end) begin++;
-    while (isspace(end) && begin <= end) end--;
-
-    size_t new_size = end - begin;
-
-    if (begin == end || size == new_size)
-        return str; 
-
-    memmove(str, begin, new_size + 1);
-    str[new_size + 1] = '\0';
-}
 
 ini_section_t* _find_section(const char* name, INI* file) {
     for (ini_section_t* begin = file->sections, *end = begin + file->section_count; begin < end; begin++)

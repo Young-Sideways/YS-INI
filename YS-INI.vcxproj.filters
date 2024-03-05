@@ -21,9 +21,18 @@
     <ClCompile Include="ini\ini.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="ini\ini.parser.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ini\ini.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="ini\ini.parser.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="ini\ini.utils.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

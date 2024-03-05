@@ -62,21 +62,14 @@ void ini_close(_IN INI* ini);
 #pragma region --- FUNCIONS ---
 
 
-ini_value_t ini_get_value(INI* file, const char* key);
+ini_value_t ini_get_value(INI* file, const char* key, const char* section);
 
     bool ini_to_bool(_IN const ini_value_t value, _IN const bool     defval);
      int ini_to_int (_IN const ini_value_t value, _IN const int      defval);
 unsigned ini_to_uint(_IN const ini_value_t value, _IN const unsigned defval);
    char* ini_to_str (_IN const ini_value_t value, _IN const char*    defval);
-wchar_t* ini_to_ustr(_IN const ini_value_t value, _IN const wchar_t* defval);
 
-void* ini_to_sruct(INI* file);
-
-#pragma endregion
-
-#pragma region ---  ---
-
-
+void* ini_to_sruct(INI* file, const char* format, ini_section_t* section); // WIP
 
 #pragma endregion
 
