@@ -35,7 +35,6 @@
 
 #pragma region --- TYPEDEFS ---
 
-typedef char* ini_key_t;
 typedef struct ini_value ini_value_t;
 
 typedef struct ini_property ini_property_t;

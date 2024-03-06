@@ -11,8 +11,8 @@
 
 #pragma region --- INCLUDES ---
 
-#include <string.h>
-#include <ctype.h>
+#include "ini.utils.h"
+#include "ini.parser.h"
 
 #pragma endregion
 
@@ -21,10 +21,10 @@
 
 #define DEFAULT(var) DEFAULT_##var
 
-#define DEFAULT_INI_COMMENT '#' // 
-#define DEFAULT_INI_ESCAPE  '\\' // Backslash
+#define DEFAULT_INI_COMMENT '#' // (#, ASCII 0x23)
+#define DEFAULT_INI_ESCAPE  '\\' // backslash (\, ASCII 0x5C)
 
-#define DEFAULT_SECTION_NAME          "root"
+#define DEFAULT_SECTION_NAME          "root" // root
 #define DEFAULT_SECTION_OPEN_BRACKET  '['
 #define DEFAULT_SECTION_CLOSE_BRACKET ']'
 
@@ -35,11 +35,17 @@
 #define DEFAULT_PARSER_BUFFER_SIZE 2048
 #define DEFAULT_HT_INIT_SIZE 8U
 #define HT_SIZE_GROWTH(size) ((size) << 1) // x2 factor
+#define HT_MAX_LOAD_FACTOR 0.75f           // 75%
 
 #pragma endregion
 
 
 #pragma region --- TYPEDEFS ---
+
+
+static const char default_section_name[] = DEFAULT(SECTION_NAME);
+
+typedef size_t hash_t;
 
 struct ini_value {
     ini_value_type type;
@@ -55,28 +61,49 @@ struct ini_property {
 
     ini_property_t* next;   //!< next property, if it has name-colision
 
-    ini_key_t key;          //!< property key
-    ini_value_t value;      //!< propety value
+    char* key;              //!< property key
+    ini_value_t value;      //!< property value
 };
 
 struct ini_section {
-    INI* file;
-    const char* name;
+    INI* file;                   //!< parent object
+    hash_t hash;                 //!< section name hash
+    char* name;                  //!< section name
 
-    size_t size;
-    size_t capacity;
-    ini_property_t* properties;
+    size_t size;                 //!< current count of properties
+    size_t capacity;             //!< current allocated blocks for properties
+    ini_property_t* properties;  //!< properties table pointer
 };
 
 struct ini {
     char* path;
     FILE* file;
 
-    ini_section_t** sections;
+    ini_section_t* sections;
     size_t section_count;
 };
 
-typedef size_t hash_t;
+
+#pragma endregion
+
+
+#pragma region --- HASH ---
+
+static hash_t DEFAULT(hash)(const void* data, size_t size) {
+    hash_t hash = 5381U;
+    for (uint8_t* value = (uint8_t*)data; size; size--)
+        hash = 33U * hash ^ *(value++);
+    return hash;
+}
+
+static hash_t DEFAULT(string_hash)(const void* data, size_t size) {
+    UNUSED(size);
+
+    hash_t hash = 5381U;
+    for (char* value = (char*)data; *value; value++)
+        hash = 33U * hash ^ (uint8_t) * (value++);
+    return hash;
+}
 
 #pragma endregion
 
@@ -85,9 +112,11 @@ typedef size_t hash_t;
 
 
 ini_section_t* _find_section(const char* name, INI* file) {
-    for (ini_section_t* begin = file->sections, *end = begin + file->section_count; begin < end; begin++)
-        if (strcmp(name, begin->name) == 0)
-            return begin;
+    hash_t section_hash = DEFAULT(string_hash)(name, /*UNUSED*/0U);
+    for (int i = 0; i < file->section_count; i++)
+        if (file->sections[i].hash == section_hash)
+            if (str(name, file->sections[i].name) == 0)
+                return file->sections + i;
     return NULL;
 }
 
@@ -195,25 +224,6 @@ void _tokenize(const char* str) {
 }
 #pragma endregion
 
-#pragma region --- HASH ---
-
-static hash_t DEFAULT(hash)(const void* data, size_t size) {
-    hash_t hash = 5381U;
-    for (uint8_t* value = (uint8_t*)data; size; size--)
-        hash = 33U * hash ^ *(value++);
-    return hash;
-}
-
-static hash_t DEFAULT(string_hash)(const void* data, size_t size) {
-    UNUSED(size);
-
-    hash_t hash = 5381U;
-    for (char* value = (char*)data; *value; value++)
-        hash = 33U * hash ^ (uint8_t)*(value++);
-    return hash;
-}
-
-#pragma endregion
 
 #pragma region --- CONSTRUCTORS / DESTRUCTORS ---
 
