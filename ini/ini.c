@@ -215,6 +215,11 @@ void _tokenize(const char* str) {
                 - проверка на пустоту после символа ? OK : ОШИБКА
         case ']':
             --- ОШИБКА ---
+        
+                    
+    
+    
+    
     */
 }
 #pragma endregion
