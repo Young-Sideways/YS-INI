@@ -41,14 +41,38 @@ void trim(char* str) {
     str[new_size + 1] = '\0';
 }
 
+
+char* _find_whitespace_sequince(char* str, size_t *size) {
+    if (str)
+        for (; *str; str++)
+            if (isspace(str)) {
+                char* wptr = str + 1;
+                if (!isspace(wptr++))
+                    continue;
+                if (size) {
+                    *size = 2;
+                    while (*wptr && isspace(wptr))
+                        (*size)++
+                }
+                return str;
+            }
+    return NULL;
+}
+
 /**
  *  @brief remove all unecessary whitespaces
  *  @param str - string pointer
  */
 void trimall(char* str) {
-    _CRT_UNUSED(str);
+    // _CRT_UNUSED(str);
     // W.I.P
 
+    char* pos = strstr(str, '');
+    while (pos) {
+        size_t size = 1U;
+        while (isspace(pos[size++]));
+        // merge "... {some spaces} ..." -> "... { one space } ..."
+    }
 }
 
 /**
@@ -56,31 +80,23 @@ void trimall(char* str) {
  *  @param str     - string
  *  @param charset - preset chars
  */
-void ctrim(char* const str, const char* const charset) {
+void ctrim(char* str, const char* charset) {
     if (!str || !charset)
         return;
     if (!*str || !*charset)
         return;
 
-    size_t size = strlen(str);
-
-    char* trimmed = (char*)malloc(size + 1);
-    if (trimmed) {
-        size_t trimmed_size = 0;
-
-        for (int i = 0; i < size; i++)
-            if (!strchr(charset, str[i]))
-                trimmed[trimmed_size++] = str[i];
-        trimmed[trimmed_size++] = '\0';
-
-        memcpy(str, trimmed, trimmed_size);
-    }
+    char* tptr = str;
+    for (; *str; str++)
+        if (str != tptr && strchr(charset, *str))
+            *tptr++ = *str;
+    tptr[1] = '\0';
 }
 
 void str_lower(char* str) {
     if (str)
         for (; *str; str++)
-            if (isalpha(*str))
-                *str = (char)tolower(*str);
+            *str = (char)tolower(*str);
 }
+
 #endif // !_INI_UTILS_H_

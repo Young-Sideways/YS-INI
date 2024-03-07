@@ -68,7 +68,7 @@ ini_value_t ini_get_value(INI* file, const char* key, const char* section);
 unsigned ini_to_uint(_IN const ini_value_t value, _IN const unsigned defval);
    char* ini_to_str (_IN const ini_value_t value, _IN const char*    defval);
 
-void* ini_to_sruct(INI* file, const char* format, ini_section_t* section); // WIP
+void* ini_to_struct(INI* file, const char* format, ini_section_t* section); // WIP
 
 #pragma endregion
 
