@@ -135,13 +135,13 @@
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="test.ini" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="ini\ini.h" />
     <ClInclude Include="ini\ini.parser.h" />
     <ClInclude Include="ini\ini.types.h" />
     <ClInclude Include="ini\ini.utils.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="test.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

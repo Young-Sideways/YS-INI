@@ -26,20 +26,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="test.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ini\ini.utils.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
     <ClInclude Include="ini\ini.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="ini\ini.parser.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="ini\ini.utils.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="ini\ini.types.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="test.ini" />
   </ItemGroup>
 </Project>

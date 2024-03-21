@@ -18,6 +18,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "ini.utils.h"
+
 #pragma endregion
 
 #pragma region --- MACROS ---
@@ -73,7 +75,7 @@ struct ini_property {
     ini_section* section; //!< parent object
 
     ini_property* next;   //!< next property, if it has hash-collision
-
+    ini_hash hash;        //!< key hash
     ini_key key;          //!< property key
     ini_value value;      //!< property value
 };
@@ -117,7 +119,7 @@ ini_value ini_value_default(ini_value_type type) {
 
 bool ini_to_bool(_IN const ini_value value) {
 
-    static const char _bool_string_alias[] = "true";
+    static const char* _true_alias[]  = { "true", "yes", "y" };
 
     switch (value.type)
     {
@@ -125,10 +127,17 @@ bool ini_to_bool(_IN const ini_value value) {
         return !!value.vint;
     case INI_DOUBLE:
         return !!value.vdouble;
-    case INI_STRING:
+    case INI_STRING: {
         if (!value.vstring)
             return false;
-        return strcmp(value.vstring, _bool_string_alias) == 0;
+        size_t size = strlen(value.vstring);
+        if (size > 4)
+            return false;
+        char buf[5];
+        strncpy(buf, value.vstring, 5);
+        str_lower(buf);
+        return strcmp(buf, "true") == 0 || strcmp(buf, "yes") == 0 || strcmp(buf, "y") == 0;
+    }
     default:
         return false;
     }
@@ -178,24 +187,25 @@ char* ini_to_str(_IN const ini_value value) {
 
     switch (value.type)
     {
-    case INI_INT: {
+    case INI_INT:
         length = (size_t)snprintf(NULL, 0, "%d", value.vint); //!< find size of possible string
         buffer = (char*)malloc(length + 1);
-        snprintf(buffer, length + 1, "%d", value.vint);
+        if (buffer)
+            snprintf(buffer, length + 1, "%d", value.vint);
         break;
-    }
-    case INI_DOUBLE: {
+    case INI_DOUBLE:
         length = (size_t)snprintf(NULL, 0, "%f", value.vdouble); //!< find size of possible string
         buffer = (char*)malloc(length + 1);
-        snprintf(buffer, length + 1, "%f", value.vdouble);
+        if (buffer)
+            snprintf(buffer, length + 1, "%f", value.vdouble);
         break;
-    }
     case INI_STRING:
         if (!value.vstring)
             break;
         length = strlen(value.vstring); //!< find size of possible string
         buffer = (char*)malloc(length + 1);
-        memcpy(buffer, value.vstring, length + 1);
+        if (buffer)
+            memcpy(buffer, value.vstring, length + 1);
         break;
     default:
         break;
@@ -220,6 +230,37 @@ char* ini_to_buf(_IN const ini_value value, _INOUT char* buffer) {
         }
         case INI_DOUBLE: {
             sprintf(buffer,"%f", value.vdouble);
+            break;
+        }
+        case INI_STRING:
+            strcpy(buffer, value.vstring);
+            break;
+        default:
+            buffer[0] = '\0';
+            break;
+        }
+    return buffer;
+}
+
+/**
+ *  @brief  writes ini value to buffer
+ *  @param  value  - ini value
+ *  @param  buffer - memory block to put string in it
+ *  @param  size   - size of memory block
+ *  @retval        - written buffer
+ */
+char* ini_to_bufn(_IN const ini_value value, _INOUT char* buffer, _IN size_t size) {
+    if (size == 0U)
+        return 0;
+    if (buffer)
+        switch (value.type)
+        {
+        case INI_INT: {
+            itoa(value.vint, buffer, 10);
+            break;
+        }
+        case INI_DOUBLE: {
+            sprintf(buffer, "%f", value.vdouble);
             break;
         }
         case INI_STRING:

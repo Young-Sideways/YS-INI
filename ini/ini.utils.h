@@ -27,6 +27,24 @@
 
 #pragma region --- FUNCTIONS ---
 
+char* skpled(char* str) {
+    if (str) {
+        char* ptr = str;
+        while (isspace(*ptr)) ptr++;
+        memmove(str, ptr, strlen(ptr) + 1);
+    }
+    return str;
+}
+
+char* skptai(char* str) {
+    if (str) {
+        char* ptr = str + strlen(str) - 1;
+        while (isspace(ptr)) ptr--;
+        ptr[1] = '\0';
+    }
+    return str;
+}
+
 void trim(char* str) {
     if (!str)
         return;
@@ -48,19 +66,6 @@ void trim(char* str) {
     str[size] = '\0';
 }
 
-char* _find_whitespace_sequince(char* str, size_t* size) {
-    if (str)
-        for (; *str; str++)
-            if (isspace(str)) {
-                char* wptr = str + 1;
-                for (; isspace(wptr); wptr++);
-                if (size && (wptr - str) > 1)
-                    *size = (size_t)(wptr - str);
-                return str;
-            }
-    return NULL;
-}
-
 void ctrim(char* str, const char* charset) {
     if (!str || !charset)
         return;
@@ -77,16 +82,17 @@ void ctrim(char* str, const char* charset) {
     *ptr = '\0';
 }
 
-void str_lower(char* str) {
+char* str_lower(char* str) {
     if (str)
-        for (; *str; str++)
-            *str = (char)tolower(*str);
+        for(; *str = (char)tolower(*str); str++);
+    return str;
 }
-void str_upper(char* str) {
+
+char* str_upper(char* str) {
     if (str)
-        for (; *str; str++)
-            *str = (char)toupper(*str);
+        for (; *str = (char)toupper(*str); str++);
 }
+
 #pragma endregion
 
 #endif // !_INI_UTILS_H_

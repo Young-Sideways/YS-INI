@@ -70,23 +70,19 @@
 
 #pragma region --- MACROS ---
 
-#define INI_COMMENT       '#'
-#define INI_COMMENT_ALIAS ';'
+#define INI_COMMENT               "#;"
 
-#define SECTION_OPEN_BRACKET  '['
-#define SECTION_CLOSE_BRACKET ']'
-#define SECTION_NAME          "root" // root
+#define INI_SECTION_OPEN_BRACKET  "["
+#define INI_SECTION_CLOSE_BRACKET "]"
+#define INI_DEFAULT_SECTION_NAME  "root"
 
-#define PROPERTY_DELIMITER       '='
-#define PROPERTY_DELIMITER_ALIAS ':'
+#define INI_PROPERTY_DELIMITER    "=:"
 
-#define INI_SPECIAL_CHARS "[]=:#;"
+#define INI_PARSER_BUFFER_SIZE    1024
 
-#define PARSER_BUFFER_SIZE 256
-
-#define HT_INIT_SIZE 8U
-#define HT_SIZE_GROWTH(size) ((size) << 1) // x2 factor
-#define HT_MAX_LOAD_FACTOR 0.75f           // 75%
+#define HT_INIT_SIZE         8U
+#define HT_SIZE_GROWTH(size) (((size) < 8U) ? 8U : ((size) << 1)) // x2 factor
+#define HT_MAX_LOAD_FACTOR   0.75f // 75%
 
 #pragma endregion
 
@@ -111,8 +107,6 @@ static ini_hash default_str_hash(const void* data, size_t size) {
 #pragma endregion
 
 #pragma region --- ERRORS ---
-
-
 
 static const char const* const ini_parse_errors[] = {
     "no error",
@@ -289,7 +283,7 @@ void ini_tokenize(INI* ini) {
 
 
     // start parsing
-    char buffer[PARSER_BUFFER_SIZE];
+    char buffer[INI_PARSER_BUFFER_SIZE + 1] = { '\0' };
     size_t string_count = 0U;
 
     while (fgets(buffer, PARSER_BUFFER_SIZE - 1, file) != EOF) {
@@ -356,12 +350,28 @@ void ini_tokenize(INI* ini) {
         default:
             break;
         }
+        const char _comment_scanset[]  = " %*[" INI_COMMENT "]"; //!< whitespaces [#;]
+        const char _section_scanset[]  = " " INI_SECTION_OPEN_BRACKET " %[0-9a-zA-Z._] " INI_SECTION_CLOSE_BRACKET; //!< whitespaces '[' whitespaces [0-9a-zA-Z._] whitespaces ']' 
+        const char _property_scanset[] = " %[0-9a-zA-Z_] %*[" INI_PROPERTY_DELIMITER "] %[^" INI_COMMENT "\r\n]"; //!< whitespaces [0-9a-zA-Z_] [=;] [^#;]
     }
 
     fclose(file);
 
-
     // TODO: place for error goto labels
 }
+
+char* section_validate(char* str) {
+
+}
+
+char* key_validate(char* str) {
+
+}
+
+char* value_vlaidate(char* str) {
+
+}
+
+
 
 #pragma endregion
